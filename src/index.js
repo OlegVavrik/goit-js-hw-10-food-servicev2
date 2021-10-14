@@ -1,28 +1,49 @@
 import menuTpl from './templates/menu-cards.hbs'
 import './css/styles.css';
 import menu from './menu.json'
-import localStorage from './js/theme.js'
 
 const listRef = document.querySelector('.js-menu');
-const checkboxRef = document.querySelector('#theme-switch-toggle');
-
 listRef.insertAdjacentHTML('beforeend', menuTpl(menu));
-checkboxRef.addEventListener('change', onInputChange);
-document.body.classList.add('light-theme');
 
-function onInputChange(e) {
-  const input = e.target;
-  const isChanged = input.checked;
-  document.body.classList.toggle('dark-theme');
-  localStorage.save('isChecked', isChanged);
-}
+const refs = {
+  body: document.querySelector('body'),
+  switch: document.querySelector('#theme-switch-toggle'),
+};
 
-const changeCheck = () => {
-  const isInputChecked = LS.load('isChecked');
-  console.log(isInputChecked);
-  if (isInputChecked) {
-    document.body.classList.add('dark-theme');
-    checkboxRef.checked = isInputChecked;
+const Theme = {
+  LIGHT: 'light-theme',
+  DARK: 'dark-theme',
+};
+
+refs.switch.addEventListener('change', setClassList);
+refs.switch.addEventListener('change', setLocalStorage);
+
+function setClassList(e) {
+  const check = refs.switch.checked;
+
+  if (check) {
+    refs.body.classList.add(Theme.DARK);
+    refs.body.classList.remove(Theme.LIGHT);
+  } else {
+    refs.body.classList.add(Theme.LIGHT);
+    refs.body.classList.remove(Theme.DARK);
   }
 }
-changeCheck();
+
+function setLocalStorage(e) {
+  const check = refs.switch.checked;
+
+  if (check) {
+    localStorage.setItem('theme', Theme.DARK);
+  } else {
+    localStorage.removeItem('theme');
+    localStorage.setItem('theme', Theme.LIGHT);
+  }
+}
+
+const themeInLocal = localStorage.getItem('theme');
+
+if (themeInLocal === Theme.DARK) {
+  refs.body.classList.add(Theme.DARK);
+  refs.switch.checked = true;
+}
